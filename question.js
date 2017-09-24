@@ -52,14 +52,21 @@ function getQuestionFromText(text, title) {
                 // WHO question
                 var sub1 = "is";
                 var sub2 = "was";
+                
+                /** ex: The ________ was a large Goblin leader who lived in the Misty Mountains 
+                in Middle-earth during the Third Age. He appears only in The Hobbit. */
                 if (text.indexOf(sub1) !== -1 || text.indexOf(sub2) !== -1) {
-                    if (text.substr(text.indexOf(sub1)-2) == blank) {
+                    if (text.substr(text.indexOf(sub1)-1) == blank ||
+                       text.substr(text.indexOf(sub1)-2) == blank) {
                         text = "Who is " + text.substr((text.indexOf(sub1)+3), length-1) + "?"
                     }
-                    else if (text.substr(text.indexOf(sub2)-2) == blank) {
+                    else if (text.substr(text.indexOf(sub2)-1) == blank ||
+                            text.substr(text.indexOf(sub2)-2) == blank) {
                         text = "Who was " + text.substr((text.indexOf(sub1)+3), length-1) + "?"
                     }
+                    // returns 
                 }
+                
                 
                 // WHAT question
                 // Preceded by determiner
@@ -69,8 +76,7 @@ function getQuestionFromText(text, title) {
                 
                 // WHERE question
                 var location_words = ["location", "located in", "country of"];
-                
-                // WHY question
+
                 
             }
             
@@ -98,6 +104,11 @@ function getQuestionFromText(text, title) {
                 return text;
             }
             
+            function fixQuestion(text, key) {
+                //TODO
+            }
+            
+            newText = fixQuestion(text); 
             // edits end here
            
             request({
