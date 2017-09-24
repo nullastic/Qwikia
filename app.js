@@ -18,9 +18,22 @@ const server = app.listen(process.env.PORT || 3000, () => {
     console.log('Express server listening on port %d in %s mode', server.address().port, app.settings.env);
 });
 
+
 function sendMessage(event) {
     let sender = event.sender.id;
-    var topic = event.message.text;
+    var topic = event.message.text.replace(/\s/g, "") ;
+    
+    function wikiNotFoundError() {
+      request({
+        url: 'https://graph.facebook.com/v2.10/me/messages',
+        qs: {access_token: 'EAARiEsAuvXEBAHvp6kDS4bAcyIrkudgRZCieT78BWO7ZAsbfAzIdkjMe7EJlv731DezS6Ic5crJs2OOTZCIVXVf3GijGjnwzNRkcZAwJHJaFPfdERSsp9dvZCuKUnCchIEZCjE9BOv58Pcc6EdrKV3wSK5lkKkDLhqGFjwjUua0gZDZD'},
+        method: 'POST',
+        json: {
+          recipient: {id: sender},
+          message: {text: 'I\'m sorry. I did not receive any data. Please try again!'}
+        }
+      });
+    }
     
     function get50Questions(articles, callback) {
       var articlesData = [];      
@@ -28,7 +41,13 @@ function sendMessage(event) {
         var siteUrl = 'http://' + topic + '.wikia.com/api/v1/Articles/AsSimpleJson?id=' + value;
         request.get(siteUrl, function(error, response, body) {
           if(!error && response.statusCode === 200) {
-            var sections = JSON.parse(body).sections;
+            try {
+              var sections = JSON.parse(body).sections;
+            }
+            catch (e) {
+              wikiNotFoundError();
+              return;
+            }
             //console.log(sections[0].content[0].text);
             if(sections[key]) {
               for(var i = 0; i < sections.length; i++) {
@@ -41,6 +60,17 @@ function sendMessage(event) {
               }
             }
             callback();
+          } else {
+            console.log(JSON.stringify(body));
+            request({
+              url: 'https://graph.facebook.com/v2.10/me/messages',
+              qs: {access_token: 'EAARiEsAuvXEBAHvp6kDS4bAcyIrkudgRZCieT78BWO7ZAsbfAzIdkjMe7EJlv731DezS6Ic5crJs2OOTZCIVXVf3GijGjnwzNRkcZAwJHJaFPfdERSsp9dvZCuKUnCchIEZCjE9BOv58Pcc6EdrKV3wSK5lkKkDLhqGFjwjUua0gZDZD'},
+              method: 'POST',
+              json: {
+                recipient: {id: sender},
+                message: {text: 'I\'m sorry. I did not receive any data. Please try again!'}
+              }
+            });
           }
         });
       }, function (err) {
@@ -59,7 +89,13 @@ function sendMessage(event) {
       // Create list of 250 popular articles
       request.get(siteUrl, function(error, response, body) {
         if(!error && response.statusCode === 200) {
-          var items = JSON.parse(body).items;
+          try {
+            var items = JSON.parse(body).items;
+          }
+          catch (e) {
+            wikiNotFoundError();
+            return;
+          }
           var itemsCount = items.length;
           var noOfQs = (itemsCount < 50)? itemsCount : 50;
           for(var i = 0; i < noOfQs; i++) {
@@ -99,11 +135,8 @@ function sendMessage(event) {
                     var length = key.length;
                     console.log(length);
                     var newText = articlesData[0];
-                    var blank='';
-                    for(var i = 0; i < length; i++) {
-                        blank+='_';
-                    }
-                    newText = articlesData[0].substr(0,index) + blank + articlesData[0].substr(index+length);
+                    var blank='_______';
+                    newText = articlesData[0].substring(0,index) + blank + articlesData[0].substring(index+length);
                     request({
                           url: 'https://graph.facebook.com/v2.10/me/messages',
                           qs: {access_token: 'EAARiEsAuvXEBAHvp6kDS4bAcyIrkudgRZCieT78BWO7ZAsbfAzIdkjMe7EJlv731DezS6Ic5crJs2OOTZCIVXVf3GijGjnwzNRkcZAwJHJaFPfdERSsp9dvZCuKUnCchIEZCjE9BOv58Pcc6EdrKV3wSK5lkKkDLhqGFjwjUua0gZDZD'},
@@ -115,15 +148,7 @@ function sendMessage(event) {
                         });
                       }
                       else {
-                        request({
-                          url: 'https://graph.facebook.com/v2.10/me/messages',
-                          qs: {access_token: 'EAARiEsAuvXEBAHvp6kDS4bAcyIrkudgRZCieT78BWO7ZAsbfAzIdkjMe7EJlv731DezS6Ic5crJs2OOTZCIVXVf3GijGjnwzNRkcZAwJHJaFPfdERSsp9dvZCuKUnCchIEZCjE9BOv58Pcc6EdrKV3wSK5lkKkDLhqGFjwjUua0gZDZD'},
-                          method: 'POST',
-                          json: {
-                            recipient: {id: sender},
-                            message: {text: 'I\'m sorry. I did not receive any data. Please try again!'}
-                          }
-                        });
+                        wikiNotFoundError();
                       }
                       }
             });
