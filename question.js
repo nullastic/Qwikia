@@ -66,6 +66,7 @@ function getQuestionFromText(text, title) {
                 var det = "the";
                 
                 
+                
                 // WHERE question
                 var location_words = ["location", "located in", "country of"];
                 
