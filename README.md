@@ -2,13 +2,13 @@
 
 A Facebook Messenger bot that uses the Wikia API to retrieve articles about the topic that YOU choose, and generate questions from them on the fly.
 
-# Why I made this bot
+# Why we made this bot
 
-I love doing trivia about my favourite topics in fandom and fiction. However, all the trivia apps I use always run out of questions and so I have to answer the same questions again and again. This was my solution to the problem.
+Anamaya loves doing trivia about his favourite topics in fandom and fiction. However, the trivia apps we use always run out of questions and so he has to answer the same questions again and again. This is our solution to that problem.
 
 # Technologies Used
 
-NodeJS for the backend. Heroku for deployment and Facebook for its messenger platform. Wikia API for questions data and some help from the Google Cloud NLP API for making questions from data. I have plans to integrate api.ai and firebase in the future to provide some basic NLP to make conversations feel more life like and to provide a platform to users to rank questions they loved.
+NodeJS for the backend. Heroku for deployment and Facebook for its messenger platform. Wikia API for questions data and some help from the Google Cloud NLP API for making questions from data. We have plans to integrate api.ai and firebase in the future to provide some basic NLP to make conversations feel more life like and to provide a platform to users to rank questions they loved.
 
 # Current State
 
