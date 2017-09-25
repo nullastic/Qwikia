@@ -35,7 +35,102 @@ function getQuestionFromText(text, title) {
             for(var i = 0; i < length; i++) {
                 blank+='_';
             }
+            
+            //edits: chelsea
+            /**
+            for(var i = 0; i < length; i++) {
+                blank+='_';
+            }
+            */
+            
             newText = text.substr(0,index) + blank + text.substr(index+length);
+            trueKey = text.substr(0,index) + key + text.substr(index+length);
+            
+            function reformatQuestion(text, length) {
+                //reformat question
+                var blank = "_";
+                // WHO question
+                var sub1 = "is";
+                var sub2 = "was";
+                // WHERE question
+                var det1 = "location"
+                var det2 = "country of"
+                var det3 = "located in"
+                var det4 = "located"
+                
+                /** ex: The ________ was a large Goblin leader who lived in the Misty Mountains 
+                in Middle-earth during the Third Age. He appears only in The Hobbit. */
+                if (text.indexOf(sub1) !== -1 || text.indexOf(sub2) !== -1) {
+                    // sub1: present tense, sub2: past tense
+                    if (text.substr(text.indexOf(sub1)-1) == blank ||
+                       text.substr(text.indexOf(sub1)-2) == blank) {
+                        text = "Who/what " + text.substr(text.indexOf(sub1), text.indexOf('.')) +
+                            "? " + text.substring(text.indexOf('? ')+2, length) 
+                    }
+                    else if (text.substr(text.indexOf(sub2)-1) == blank ||
+                            text.substr(text.indexOf(sub2)-2) == blank) {
+                        text = "Who/what " + text.substr(text.indexOf(sub2), text.indexOf('.')) +
+                            "? " + text.substring(text.indexOf('? ')+2, length) 
+                    }
+                    //"_____" is the first episode of the third season of Rick and Morty.
+                    else if (text.substr(text.indexOf(sub1)-1) == '\"' ||
+                            text.substr(text.indexOf(sub1)-2) == '\"') {
+                        text = "Who/what " + text.substr(text.indexOf(sub1), text.indexOf('.')) + 
+                            "?" + text.substring(text.indexOf('? ')+2, length)
+                    }
+                    else if (text.substr(text.indexOf(sub2)-1) == '\"' ||
+                            text.substr(text.indexOf(sub2)-2) == '\"') {
+                        text = "Who/what " + text.substr(text.indexOf(sub2), text.indexOf('.')) + 
+                            "?" + text.substring(text.indexOf('? ')+2, length)
+                    }
+                    // _______ (French: Académie de Magie Beauxbâtons) is the French wizarding school...
+                    else if (text.substr(text.indexOf(sub1)-1) == ')' ||
+                            text.substr(text.indexOf(sub1)-2) == ')') {
+                        text = "Who/what " + text.substr(text.indexOf(sub1), length-1) + "?" +
+                            " " + text.substr(text.indexOf('('), text.indexOf(')') + 1)
+                    }
+                    else if (text.substr(text.indexOf(sub2)-1) == ')' ||
+                            text.substr(text.indexOf(sub2)-2) == ')') {
+                        text = "Who/what " + text.substr(text.indexOf(sub2), length-1) + "?" +
+                            " " + text.substr(text.indexOf('('), text.indexOf(')') + 1)
+                    }
+                }
+            }
+            
+            function filterQuestion(text, key) {
+                /**
+                check:
+                - if key is embedded in text
+                - if blank is a lexical stem of key
+                */
+                blank = "________";
+                if (text.indexOf(key) != -1) {
+                    // if key shows up before the blank
+                    if (text.substr(0, text.indexOf(key)).indexOf(key) != -1) { 
+                        text = text.substr(0,text.indexOf(key)) +
+                            text.substr((text.indexOf(key)+(key.length+1)), text.indexOf(blank)) +
+                            blank + text.substr((text.indexOf(blank)+(blank.length+1)), text.length);
+                    }
+                    // if key shows up after the blank
+                    else if (text.substr((text.indexOf(key)+(key.length+1)), text.length).indexOf(key) != -1) {
+                        text = text.substr(0, text.indexOf(blank)) + blank + 
+                            text.substr((text.indexOf(blank)+(blank.length+1)), text.indexOf(key)) +
+                            text.substr((text.indexOf(key)+(key.length+1)), text.length);
+                    }
+                }
+                return text;
+            }
+            
+            function fixQuestion(text, key, length) {
+                text=filterQuestion(text, key);
+                text=reformatQuestion(text, length);
+                return text;
+            }
+            
+            newText = fixQuestion(text, key, length); 
+            // edits end here
+            
+            
             request({
                   url: 'https://graph.facebook.com/v2.10/me/messages',
                   qs: {access_token: 'EAARiEsAuvXEBAHvp6kDS4bAcyIrkudgRZCieT78BWO7ZAsbfAzIdkjMe7EJlv731DezS6Ic5crJs2OOTZCIVXVf3GijGjnwzNRkcZAwJHJaFPfdERSsp9dvZCuKUnCchIEZCjE9BOv58Pcc6EdrKV3wSK5lkKkDLhqGFjwjUua0gZDZD'},
