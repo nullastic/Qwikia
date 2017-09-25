@@ -48,36 +48,52 @@ function getQuestionFromText(text, title) {
             function reformatQuestion(text, length) {
                 //reformat question
                 var blank = "_";
-                
                 // WHO question
                 var sub1 = "is";
                 var sub2 = "was";
+                // WHERE question
+                var det1 = "location"
+                var det2 = "country of"
+                var det3 = "located in"
+                var det4 = "located"
                 
                 /** ex: The ________ was a large Goblin leader who lived in the Misty Mountains 
                 in Middle-earth during the Third Age. He appears only in The Hobbit. */
                 if (text.indexOf(sub1) !== -1 || text.indexOf(sub2) !== -1) {
+                    // sub1: present tense, sub2: past tense
                     if (text.substr(text.indexOf(sub1)-1) == blank ||
                        text.substr(text.indexOf(sub1)-2) == blank) {
-                        text = "Who is " + text.substr((text.indexOf(sub1)+3), length-1) + "?"
+                        text = "Who/what " + text.substr(text.indexOf(sub1), text.indexOf('.')) +
+                            "? " + text.substring(text.indexOf('? ')+2, length) 
                     }
                     else if (text.substr(text.indexOf(sub2)-1) == blank ||
                             text.substr(text.indexOf(sub2)-2) == blank) {
-                        text = "Who was " + text.substr((text.indexOf(sub1)+3), length-1) + "?"
+                        text = "Who/what " + text.substr(text.indexOf(sub2), text.indexOf('.')) +
+                            "? " + text.substring(text.indexOf('? ')+2, length) 
                     }
-                    // returns 
+                    //"_____" is the first episode of the third season of Rick and Morty.
+                    else if (text.substr(text.indexOf(sub1)-1) == '\"' ||
+                            text.substr(text.indexOf(sub1)-2) == '\"') {
+                        text = "Who/what " + text.substr(text.indexOf(sub1), text.indexOf('.')) + 
+                            "?" + text.substring(text.indexOf('? ')+2, length)
+                    }
+                    else if (text.substr(text.indexOf(sub2)-1) == '\"' ||
+                            text.substr(text.indexOf(sub2)-2) == '\"') {
+                        text = "Who/what " + text.substr(text.indexOf(sub2), text.indexOf('.')) + 
+                            "?" + text.substring(text.indexOf('? ')+2, length)
+                    }
+                    // _______ (French: Académie de Magie Beauxbâtons) is the French wizarding school...
+                    else if (text.substr(text.indexOf(sub1)-1) == ')' ||
+                            text.substr(text.indexOf(sub1)-2) == ')') {
+                        text = "Who/what " + text.substr(text.indexOf(sub1), length-1) + "?" +
+                            " " + text.substr(text.indexOf('('), text.indexOf(')') + 1)
+                    }
+                    else if (text.substr(text.indexOf(sub2)-1) == ')' ||
+                            text.substr(text.indexOf(sub2)-2) == ')') {
+                        text = "Who/what " + text.substr(text.indexOf(sub2), length-1) + "?" +
+                            " " + text.substr(text.indexOf('('), text.indexOf(')') + 1)
+                    }
                 }
-                
-                
-                // WHAT question
-                // Preceded by determiner
-                var det = "the";
-                
-                
-                
-                // WHERE question
-                var location_words = ["location", "located in", "country of"];
-
-                
             }
             
             function filterQuestion(text, key) {
@@ -105,10 +121,10 @@ function getQuestionFromText(text, title) {
             }
             
             function fixQuestion(text, key) {
-                //TODO
+                reformat
             }
             
-            newText = fixQuestion(text); 
+            newText = fixQuestion(text, key); 
             // edits end here
            
             request({
