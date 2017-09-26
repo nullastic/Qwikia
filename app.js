@@ -10,6 +10,8 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const async = require('async');
 var question = require('./question.js');
+var pos = require('pos'); // Chelsea: edit
+en = require('stopword'); // Chelsea: edit
 const app =express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
@@ -136,7 +138,24 @@ function sendMessage(event) {
                     console.log(length);
                     var newText = articlesData[0];
                     var blank='_______';
-                    newText = articlesData[0].substring(0,index) + blank + articlesData[0].substring(index+length);
+                    
+                    // Chelsea's edit
+                    var words = new pos.Lexer().lex(newText);
+                    var tagger = new pos.Tagger();
+                    var tag_words = tagger.tag(newText);
+                    var stopwords = en.no
+                    for (i in tag_words) 
+                    {
+                        var taggedWord = tag_words[i];
+                        var word = taggedWord[0];
+                        var tag = taggedWord[1];
+                        console.log(word + " /" + tag);
+                    }
+                    
+                    function formatQuestion() {
+                    }
+                        
+                    // newText = articlesData[0].substring(0,index) + blank + articlesData[0].substring(index+length);
                     request({
                           url: 'https://graph.facebook.com/v2.10/me/messages',
                           qs: {access_token: 'EAARiEsAuvXEBAHvp6kDS4bAcyIrkudgRZCieT78BWO7ZAsbfAzIdkjMe7EJlv731DezS6Ic5crJs2OOTZCIVXVf3GijGjnwzNRkcZAwJHJaFPfdERSsp9dvZCuKUnCchIEZCjE9BOv58Pcc6EdrKV3wSK5lkKkDLhqGFjwjUua0gZDZD'},
