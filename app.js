@@ -10,8 +10,8 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const async = require('async');
 var question = require('./question.js');
-var pos = require('pos'); // Chelsea: edit
-en = require('stopword'); // Chelsea: edit
+var pos = require('pos'); 
+var nlp = require('compromise') 
 const app =express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
@@ -140,20 +140,68 @@ function sendMessage(event) {
                     var blank='_______';
                     
                     // Chelsea's edit
-                    var words = new pos.Lexer().lex(newText);
-                    var tagger = new pos.Tagger();
-                    var tag_words = tagger.tag(newText);
-                    var stopwords = en.no
-                    for (i in tag_words) 
-                    {
-                        var taggedWord = tag_words[i];
-                        var word = taggedWord[0];
-                        var tag = taggedWord[1];
-                        console.log(word + " /" + tag);
+                    function whoQuestion(text, key) {
+                        ans = "";
+                        blank = '________';
+
+                        sentences = nlp(text).sentences().data()
+
+                        if (text.startsWith(key) == true) {
+                            ans = "Q: Who" + text.substr(text.indexOf(key)+key.length, text.length) + "?";
+                        }
+                        else if (text.endsWith(key) == true) {
+                            ans = text.substr(0, text.indexOf(key)) + "who?" + text.substr(text.indexOf(key)+key.length);
+                        }
+                        else {
+                            for (i in sentences) {
+                                if ((sentences[i].text).startsWith(key) == true) {
+                                    ans = text.substr(0, text.indexOf(key)) + "Who" + 
+                                    text.substr(text.indexOf(key)+key.length);
+                                }
+                                else if ((sentences[i].text).endsWith(key) == true) {
+                                    ans = text.substr(0, text.indexOf(key)) + "who" + 
+                                    text.substr(text.indexOf(key)+key.length);
+
+                                }
+                                else {
+                                    ans = text.substr(0,text.indexOf(key)) + blank + text.substr(text.indexOf(key)+key.length) + "?";
+                                }
+                            }
+                        }
+                        return nlp(ans).sentences().toQuestion().out()
                     }
-                    
-                    function formatQuestion() {
-                    }
+
+                    // FUNCTIONS DEALING WITH OBJECTS
+
+                    function whatQuestion(text, key) {
+                        ans = "";
+                        blank = '________';
+
+                        sentences = nlp(text).sentences().data()
+
+                        if (text.startsWith(key) == true) {
+                            ans = "What" + text.substr(text.indexOf(key)+key.length, text.length) + "?";
+                        }
+                        else if (text.endsWith(key) == true) {
+                            ans = text.substr(0, text.indexOf(key)) + "what?" + text.substr(text.indexOf(key)+key.length);
+                        }
+                        else {
+                            for (i in sentences) {
+                                if ((sentences[i].text).startsWith(key) == true) {
+                                    ans = text.substr(0, text.indexOf(key)) + "What" + 
+                                    text.substr(text.indexOf(key)+key.length);
+                                }
+                                else if ((sentences[i].text).endsWith(key) == true) {
+                                    ans = text.substr(0, text.indexOf(key)) + "what" + 
+                                    text.substr(text.indexOf(key)+key.length);
+
+                                }
+                                else {
+                                    ans = text.substr(0,text.indexOf(key)) + blank + text.substr(text.indexOf(key)+key.length) + "?";
+                                }
+                            }
+                        }
+                        return nlp(ans).sentences().toQuestion().out()
                         
                     // newText = articlesData[0].substring(0,index) + blank + articlesData[0].substring(index+length);
                     request({
