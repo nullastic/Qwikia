@@ -83,28 +83,38 @@ function sendMessage(event) {
         }
       });
     }
-
+    
     function getFiftyArticles() {
-      var articles =[];
-      var siteUrl = 'http://' + topic + '.wikia.com/api/v1/Articles/Top?Limit=250';
-      var rand;
-      // Create list of 250 popular articles
-      request.get(siteUrl, function(error, response, body) {
-        if(!error && response.statusCode === 200) {
-          try {
-            var items = JSON.parse(body).items;
+        var articles = [];
+        var siteUrl = 'http://' + topic + '.wikia.com/api/v1/Articles/Top?Limit=250';
+        var rand;
+        // Create list of 250 popular articles
+        request.get(siteUrl, function (error, response, body) {
+          if (!error && response.statusCode === 200) {
+            try {
+              var items = JSON.parse(body).items;
+            }
+            catch (e) {
+              wikiNotFoundError();
+              return;
+            }
+            var itemsCount = items.length;
+            var noOfQs = (itemsCount < 50) ? itemsCount : 50;
+            for (var i = 0; i < noOfQs; i++) {
+              rand = Math.random();
+              rand *= itemsCount;
+              articles.push(items[Math.floor(rand)].id);
+            }
+            get50Questions(articles, function (articlesData) {
+              sendQuestion(articlesData);
+            });
           }
-          catch (e) {
-            wikiNotFoundError();
-            return;
-          }
-          var itemsCount = items.length;
-          var noOfQs = (itemsCount < 50)? itemsCount : 50;
-          for(var i = 0; i < noOfQs; i++) {
-            rand = Math.random();
-            rand *= itemsCount;
-            articles.push(items[Math.floor(rand)].id);
-          }
+        });
+      }
+  getFiftyArticles();
+ }
+
+    
           get50Questions(articles, function(articlesData) {
             var YOUR_API_KEY = 'AIzaSyAgWYqV90V6NCI3CUNWStkwH9-rPRsnt4M';
             var siteUrl = 'https://language.googleapis.com/v1beta2/documents:analyzeEntities?key='+YOUR_API_KEY;
@@ -225,6 +235,8 @@ function sendMessage(event) {
     }
   getFiftyArticles();
 }
+                  
+                  
 
 app.get('/webhook', (req, res) => {
     if (req.query['hub.mode'] && req.query['hub.verify_token'] === 'tuxedo_cat') {
