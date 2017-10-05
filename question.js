@@ -26,105 +26,102 @@ function getQuestionFromText(text, title) {
                 return b.salience - a.salience;
             });
             console.log(data);
-            var key = data[0].name;
-            var index = data[0].mentions[0].text.beginOffset;
-            var length = key.length;
-            console.log(length);
+            var i = 0;
+            var match = true;
+            var key;
+            var index;
+            var length;
             var newText = text;
-            var blank='________';
             
-            //edits: chelsea
-            /**
-            for(var i = 0; i < length; i++) {
-                blank+='_';
+            function checkMatch(text) {
+                var cond1 = nlp(text).has('#Noun')
+                var cond1 = nlp(text).has('#Noun')
+                var cond1 = nlp(text).has('#Noun')
+                
+                console.log(m)
             }
-            */
+            
+            while (i < data.length || match != false) {
+            key = data[i].name;
+            index = data[i].mentions[i].text.beginOffset;
+            length = key.length;
+            var blank='________';
+            i++;
+            }
+            console.log(length);
+            
+            categorize(text)
+            
+            function categorize(text) {
+                /* Decides if a question is a who or what question */
+            }
+            
+            function whoQuestion(text, key) {
+                var ans = "";
+                blank = '________';
+
+                sentences = nlp(text).sentences().data()
+
+                if (text.startsWith(key) == true) {
+                    ans = "Q: Who" + text.substr(text.indexOf(key)+key.length, text.length) + "?";
+                }
+                else if (text.endsWith(key) == true) {
+                    ans = text.substr(0, text.indexOf(key)) + "Q: who?" + text.substr(text.indexOf(key)+key.length);
+                }
+                else {
+                    for (i in sentences) {
+                        if ((sentences[i].text).startsWith(key) == true) {
+                            ans = text.substr(0, text.indexOf(key)) + "Q: Who" + 
+                            text.substr(text.indexOf(key)+key.length);
+                        }
+                        else if ((sentences[i].text).endsWith(key) == true) {
+                            ans = text.substr(0, text.indexOf(key)) + "Q: who" + 
+                            text.substr(text.indexOf(key)+key.length);
+
+                        }
+                        else {
+                            ans = text.substr(0,text.indexOf(key)) + blank + text.substr(text.indexOf(key)+key.length) + "?";
+                        }
+                    }
+                }
+                return nlp(ans).sentences().toQuestion().out()
+            }
+
+            // FUNCTIONS DEALING WITH OBJECTS
+
+            function whatQuestion(text, key) {
+                ans = "";
+                blank = '________';
+
+                sentences = nlp(text).sentences().data()
+
+                if (text.startsWith(key) == true) {
+                    ans = "What" + text.substr(text.indexOf(key)+key.length, text.length) + "?";
+                }
+                else if (text.endsWith(key) == true) {
+                    ans = text.substr(0, text.indexOf(key)) + "what?" + text.substr(text.indexOf(key)+key.length);
+                }
+                else {
+                    for (i in sentences) {
+                        if ((sentences[i].text).startsWith(key) == true) {
+                            ans = text.substr(0, text.indexOf(key)) + "What" + 
+                            text.substr(text.indexOf(key)+key.length);
+                        }
+                        else if ((sentences[i].text).endsWith(key) == true) {
+                            ans = text.substr(0, text.indexOf(key)) + "what" + 
+                            text.substr(text.indexOf(key)+key.length);
+
+                        }
+                        else {
+                            ans = text.substr(0,text.indexOf(key)) + blank + text.substr(text.indexOf(key)+key.length) + "?";
+                        }
+                    }
+                }
+                return nlp(ans).sentences().toQuestion().out()
+            }
             
             newText = text.substr(0,index) + blank + text.substr(index+length);
-            trueKey = text.substr(0,index) + key + text.substr(index+length);
-            reformatQuestion(newText, length);
-            filterQuestion(trueKey, key);
-            
-            function reformatQuestion(text, length) {
-                //reformat question
-                var blank = "_";
-                // WHO question
-                var sub1 = "is";
-                var sub2 = "was";
-                // WHERE question
-                var det1 = "location"
-                var det2 = "country of"
-                var det3 = "located in"
-                var det4 = "located"
-                
-                /** ex: The ________ was a large Goblin leader who lived in the Misty Mountains 
-                in Middle-earth during the Third Age. He appears only in The Hobbit. */
-                if (text.indexOf(sub1) !== -1 || text.indexOf(sub2) !== -1) {
-                    // sub1: present tense, sub2: past tense
-                    if (text.substr(text.indexOf(sub1)-1) == blank ||
-                       text.substr(text.indexOf(sub1)-2) == blank) {
-                        text = "Who/what " + text.substr(text.indexOf(sub1), text.indexOf('.')) +
-                            "? " + text.substring(text.indexOf('? ')+2, length) 
-                    }
-                    else if (text.substr(text.indexOf(sub2)-1) == blank ||
-                            text.substr(text.indexOf(sub2)-2) == blank) {
-                        text = "Who/what " + text.substr(text.indexOf(sub2), text.indexOf('.')) +
-                            "? " + text.substring(text.indexOf('? ')+2, length) 
-                    }
-                    //"_____" is the first episode of the third season of Rick and Morty.
-                    else if (text.substr(text.indexOf(sub1)-1) == '\"' ||
-                            text.substr(text.indexOf(sub1)-2) == '\"') {
-                        text = "Who/what " + text.substr(text.indexOf(sub1), text.indexOf('.')) + 
-                            "?" + text.substring(text.indexOf('? ')+2, length)
-                    }
-                    else if (text.substr(text.indexOf(sub2)-1) == '\"' ||
-                            text.substr(text.indexOf(sub2)-2) == '\"') {
-                        text = "Who/what " + text.substr(text.indexOf(sub2), text.indexOf('.')) + 
-                            "?" + text.substring(text.indexOf('? ')+2, length)
-                    }
-                    // _______ (French: Académie de Magie Beauxbâtons) is the French wizarding school...
-                    else if (text.substr(text.indexOf(sub1)-1) == ')' ||
-                            text.substr(text.indexOf(sub1)-2) == ')') {
-                        text = "Who/what " + text.substr(text.indexOf(sub1), length-1) + "?" +
-                            " " + text.substr(text.indexOf('('), text.indexOf(')') + 1)
-                    }
-                    else if (text.substr(text.indexOf(sub2)-1) == ')' ||
-                            text.substr(text.indexOf(sub2)-2) == ')') {
-                        text = "Who/what " + text.substr(text.indexOf(sub2), length-1) + "?" +
-                            " " + text.substr(text.indexOf('('), text.indexOf(')') + 1)
-                    }
-                }
-            }
-            
-            function filterQuestion(text, key) {
-                /**
-                check:
-                - if key is embedded in text
-                - if blank is a lexical stem of key
-                */
-                blank = "________";
-                if (text.indexOf(key) != -1) {
-                    // if key shows up before the blank
-                    if (text.substr(0, text.indexOf(key)).indexOf(key) != -1) { 
-                        text = text.substr(0,text.indexOf(key)) +
-                            text.substr((text.indexOf(key)+(key.length+1)), text.indexOf(blank)) +
-                            blank + text.substr((text.indexOf(blank)+(blank.length+1)), text.length);
-                    }
-                    // if key shows up after the blank
-                    else if (text.substr((text.indexOf(key)+(key.length+1)), text.length).indexOf(key) != -1) {
-                        text = text.substr(0, text.indexOf(blank)) + blank + 
-                            text.substr((text.indexOf(blank)+(blank.length+1)), text.indexOf(key)) +
-                            text.substr((text.indexOf(key)+(key.length+1)), text.length);
-                    }
-                }
-                return text;
-            }
-            
-            function fixQuestion(text, key) {
-                reformat
-            }
-            
-            newText = fixQuestion(text, key); 
+             
             // edits end here
            
             request({
