@@ -35,8 +35,8 @@ function getQuestionFromText(text, title) {
             
             function checkMatch(text) {
                 var cond1 = nlp(text).has('#Noun')
-                var cond1 = nlp(text).has('#Noun')
-                var cond1 = nlp(text).has('#Noun')
+                var cond2 = nlp(text).has('#Adjective')
+                var cond3 = nlp(text).has('#Noun')
                 
                 console.log(m)
             }
