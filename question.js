@@ -33,12 +33,11 @@ function getQuestionFromText(text, title) {
             var length;
             var newText = text;
             
-            function checkMatch(text) {
-                var cond1 = nlp(text).has('#Noun')
-                var cond2 = nlp(text).has('#Adjective')
-                var cond3 = nlp(text).has('#Noun')
-                
-                if (cond1 == true || cond2 == true) {
+            function checkMatch(key) {
+                var cond1 = nlp(key).has('#Noun')
+                var cond2 = nlp(key).has('#Adjective')
+                var cond3 = nlp(key).has('#Pronoun')
+                if (cond1 == true || cond2 == true || cond3 == true) {
                     return true;
                 }
             }
@@ -47,7 +46,7 @@ function getQuestionFromText(text, title) {
             key = data[i].name;
             index = data[i].mentions[i].text.beginOffset;
             length = key.length;
-            match = checkMatch(text);
+            match = checkMatch(key);
             var blank='________';
             i++;
             }
