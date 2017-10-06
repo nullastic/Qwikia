@@ -38,13 +38,16 @@ function getQuestionFromText(text, title) {
                 var cond2 = nlp(text).has('#Adjective')
                 var cond3 = nlp(text).has('#Noun')
                 
-                console.log(m)
+                if (cond1 == true || cond2 == true) {
+                    return true;
+                }
             }
             
             while (i < data.length || match != false) {
             key = data[i].name;
             index = data[i].mentions[i].text.beginOffset;
             length = key.length;
+            match = checkMatch(text);
             var blank='________';
             i++;
             }
